@@ -16,13 +16,14 @@ const addNewUser = async(username, email, password) => {
         return { status: false, message: 'Invalid Email' }
     }
 
-    let hashedPassword = bcrypt.hash(password, 10)
-    let newUser = new User({ name: username, email, password })
+    let hashedPassword = await bcrypt.hash(password, 10)
+    console.log(hashedPassword)
+    let newUser = new User({ name: username, email, password: hashedPassword })
     let user = await newUser.save()
     return { status: true, message: `New account created with email id: ${email}` }
 }
 
-const loginUser = (email, password) => {
+const loginUser = async(email, password) => {
     if (!email.length) {
         return { status: false, message: 'Email cannot be empty' }
     }
@@ -32,7 +33,7 @@ const loginUser = (email, password) => {
     if (!(/.*@.*\..*/.test(email))) {
         return { status: false, message: 'Invalid Email' }
     }
-    let user = User.findOne({ email: email })
+    let user = await User.findOne({ email: email })
     console.log(user)
     if (!user) {
         return { status: false, message: 'User not found' }

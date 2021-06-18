@@ -1,5 +1,7 @@
 const express = require('express')
-const { addToken } = require('../controllers/tokenController')
+const jwt = require('jsonwebtoken')
+
+const { addToken, logoutUser } = require('../controllers/tokenController')
 const { addNewUser, loginUser } = require('../controllers/userController')
 
 const router = express.Router()
@@ -29,6 +31,17 @@ router.post('/login', async(req, res) => {
         res.status(400).send(response.message)
     }
 
+})
+
+router.post('/logout', async(req, res) => {
+    let token = req.headers['authorization'].split(' ')[1]
+    try {
+        let decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+        await logoutUser(decoded.email)
+        res.status(200).json({ message: 'Logged out successfully' })
+    } catch (error) {
+        res.status(400).json({ message: 'Something went wrong during logout' + error.message })
+    }
 })
 
 module.exports = router;
