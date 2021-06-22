@@ -20,7 +20,7 @@ router.post('/add', async(req, res) => {
     }
 })
 
-router.post('/delete/:id', async(req, res) => {
+router.delete('/:id', async(req, res) => {
     let id = req.params.id
     let response = await deleteAddress(id)
     if (response.status) {
@@ -30,7 +30,8 @@ router.post('/delete/:id', async(req, res) => {
     }
 })
 
-router.post('/update/:id', async(req, res) => {
+
+router.put('/:id', async(req, res) => {
     let id = req.params.id
     let response = await updateAddress(id, req.body)
     if (response.status) {
@@ -40,9 +41,11 @@ router.post('/update/:id', async(req, res) => {
     }
 })
 
-router.post('/search/:query', async(req, res) => {
+
+router.post('/:query', async(req, res) => {
     let query = req.params.query
-    let response = await searchAddresses(query)
+    console.log(query)
+    let response = await searchAddresses(query, req._addedEmail)
     if (response.status) {
         res.status(200).json(response.message)
     } else {

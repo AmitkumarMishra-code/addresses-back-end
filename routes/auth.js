@@ -1,7 +1,7 @@
 const express = require('express')
 const jwt = require('jsonwebtoken')
 
-const { addToken, logoutUser } = require('../controllers/tokenController')
+const { addToken, logoutUser, findToken } = require('../controllers/tokenController')
 const { addNewUser, loginUser } = require('../controllers/userController')
 
 const router = express.Router()
@@ -41,6 +41,23 @@ router.post('/logout', async(req, res) => {
         res.status(200).json({ message: 'Logged out successfully' })
     } catch (error) {
         res.status(400).json({ message: 'Something went wrong during logout' + error.message })
+    }
+})
+
+router.post('/token', async(req, res) => {
+    let { token } = req.body
+    let validToken = await findToken(token)
+    if (!token || !validToken.status) {
+        res.status(401).send('Invalid Token')
+    } else {
+        try {
+            let decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET)
+            let payload = { email: decoded.email }
+            let newToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRE_TIME })
+            res.status(200).json({ 'access_Token': newToken })
+        } catch (error) {
+            res.status(401).send(error.message)
+        }
     }
 })
 
